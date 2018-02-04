@@ -1,0 +1,38 @@
+#
+
+
+language: 'python'
+
+python:
+  - '3.4'
+  - '3.5'
+  - '3.5-dev'
+  - '3.6'
+  - '3.6-dev'
+
+install:
+  - 'pip install tox-travis'
+
+script:
+  - 'tox'
+  - 'tox -e package'
+
+deploy:
+  - provider: 'pypi'
+    distributions: 'sdist bdist_wheel'
+    user: 'sinoroc'
+    password: '${PYPI_SECRET}'
+    on:
+      tags: true
+  - provider: 'releases'
+    api_key: '${GITHUB_TOKEN}'
+    file_glob: true
+    file: 'dist/*'
+    skip_cleanup: true
+    on:
+      tags: true
+
+sudo: false
+
+
+# EOF
