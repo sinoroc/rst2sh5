@@ -11,13 +11,13 @@ def entry_point():
     """ Entry point for main console script """
     description = docutils.core.default_description
 
-    result = docutils.core.publish_cmdline(
+    docutils.core.publish_cmdline(
         writer=writer.Writer(),
         writer_name=meta.NAME,
         description=description,
     )
 
-    return result
+    return
 
 
 # EOF
