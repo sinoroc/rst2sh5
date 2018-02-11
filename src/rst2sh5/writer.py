@@ -34,6 +34,19 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
         super().unimplemented_visit(node)
         return
 
+    def visit_bullet_list(self, node):
+        atts = {}
+        self.context.append((self.compact_simple, self.compact_p))
+        self.compact_p = None
+        self.compact_simple = self.is_compactable(node)
+        self.body.append(self.starttag(node, 'ul', **atts))
+        return
+
+    def depart_bullet_list(self, node):
+        self.compact_simple, self.compact_p = self.context.pop()
+        self.body.append('</ul>\n')
+        return
+
     def visit_document(self, node):
         title = (
             node.get('title', '') or
@@ -41,6 +54,7 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
             'docutils document without title'
         )
         self.head.append('<title>%s</title>\n' % self.encode(title))
+        return
 
     def depart_document(self, node):
         self.head_prefix.extend([self.doctype,
@@ -67,6 +81,7 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
             self.body_suffix[:-1]
         )
         assert not self.context, 'len(context) = %s' % len(self.context)
+        return
 
     def visit_footer(self, node):
         self.context.append(len(self.body))
@@ -96,6 +111,30 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
         self.body_prefix.extend(header)
         self.header.extend(header)
         del self.body[start:]
+        return
+
+    def visit_reference(self, node):
+        atts = {}
+        if 'refuri' in node:
+            atts['href'] = node['refuri']
+            if (self.settings.cloak_email_addresses and
+                    atts['href'].startswith('mailto:')):
+                atts['href'] = self.cloak_mailto(atts['href'])
+                self.in_mailto = True
+        else:
+            assert 'refid' in node, \
+                    'References must have "refuri" or "refid" attribute.'
+            atts['href'] = '#' + node['refid']
+        if not isinstance(node.parent, docutils.nodes.TextElement):
+            assert len(node) == 1 and isinstance(node[0], docutils.nodes.image)
+        self.body.append(self.starttag(node, 'a', '', **atts))
+        return
+
+    def depart_reference(self, node):
+        self.body.append('</a>')
+        if not isinstance(node.parent, docutils.nodes.TextElement):
+            self.body.append('\n')
+            self.in_mailto = False
         return
 
     def visit_section(self, node):
