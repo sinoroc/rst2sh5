@@ -113,6 +113,30 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
         del self.body[start:]
         return
 
+    def visit_reference(self, node):
+        atts = {}
+        if 'refuri' in node:
+            atts['href'] = node['refuri']
+            if (self.settings.cloak_email_addresses and
+                    atts['href'].startswith('mailto:')):
+                atts['href'] = self.cloak_mailto(atts['href'])
+                self.in_mailto = True
+        else:
+            assert 'refid' in node, \
+                    'References must have "refuri" or "refid" attribute.'
+            atts['href'] = '#' + node['refid']
+        if not isinstance(node.parent, docutils.nodes.TextElement):
+            assert len(node) == 1 and isinstance(node[0], docutils.nodes.image)
+        self.body.append(self.starttag(node, 'a', '', **atts))
+        return
+
+    def depart_reference(self, node):
+        self.body.append('</a>')
+        if not isinstance(node.parent, docutils.nodes.TextElement):
+            self.body.append('\n')
+            self.in_mailto = False
+        return
+
     def visit_section(self, node):
         self.section_level += 1
         self.body.append(
