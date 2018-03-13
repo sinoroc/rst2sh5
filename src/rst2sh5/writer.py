@@ -35,11 +35,10 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
         return
 
     def visit_bullet_list(self, node):
-        atts = {}
         self.context.append((self.compact_simple, self.compact_p))
         self.compact_p = None
         self.compact_simple = self.is_compactable(node)
-        self.body.append(self.starttag(node, 'ul', **atts))
+        self.body.append(self.starttag(node, 'ul'))
         return
 
     def depart_bullet_list(self, node):
