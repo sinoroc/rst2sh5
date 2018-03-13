@@ -31,7 +31,6 @@ REQUIREMENTS_INSTALL = [
 
 REQUIREMENTS_PACKAGE = [
     'pex',
-    'twine',
     'wheel',
 ]
 
