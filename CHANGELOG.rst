@@ -2,6 +2,12 @@
 
 
 .. Keep the current version number on line number 5
+0.0.3
+=====
+
+* Add handling of titles
+
+
 0.0.2
 =====
 
