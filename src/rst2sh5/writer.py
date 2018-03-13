@@ -35,11 +35,10 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
         return
 
     def visit_bullet_list(self, node):
-        atts = {}
         self.context.append((self.compact_simple, self.compact_p))
         self.compact_p = None
         self.compact_simple = self.is_compactable(node)
-        self.body.append(self.starttag(node, 'ul', **atts))
+        self.body.append(self.starttag(node, 'ul'))
         return
 
     def depart_bullet_list(self, node):
@@ -147,6 +146,47 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
     def depart_section(self, node):
         self.section_level -= 1
         self.body.append('</section>\n')
+        return
+
+    def visit_title(self, node):
+        """Only 6 section levels are supported by HTML."""
+        close_tag = '</p>\n'
+        if isinstance(node.parent, docutils.nodes.topic):
+            self.body.append(self.starttag(node, 'p'))
+        elif isinstance(node.parent, docutils.nodes.sidebar):
+            self.body.append(self.starttag(node, 'p'))
+        elif isinstance(node.parent, docutils.nodes.Admonition):
+            self.body.append(self.starttag(node, 'p'))
+        elif isinstance(node.parent, docutils.nodes.table):
+            self.body.append(self.starttag(node, 'caption'))
+            close_tag = '</caption>\n'
+        elif isinstance(node.parent, docutils.nodes.document):
+            self.body.append(self.starttag(node, 'h1'))
+            close_tag = '</h1>\n'
+            self.in_document_title = len(self.body)
+        else:
+            assert isinstance(node.parent, docutils.nodes.section)
+            h_level = self.section_level + self.initial_header_level - 1
+            self.body.append(self.starttag(node, 'h%s' % h_level))
+            atts = {}
+            if node.hasattr('refid'):
+                atts['href'] = '#' + node['refid']
+            if atts:
+                self.body.append(self.starttag({}, 'a', '', **atts))
+                close_tag = '</a></h%s>\n' % (h_level)
+            else:
+                close_tag = '</h%s>\n' % (h_level)
+        self.context.append(close_tag)
+        return
+
+    def depart_title(self, node):
+        self.body.append(self.context.pop())
+        if self.in_document_title:
+            self.title = self.body[self.in_document_title:-1]
+            self.in_document_title = 0
+            self.body_pre_docinfo.extend(self.body)
+            self.html_title.extend(self.body)
+            del self.body[:]
         return
 
 
