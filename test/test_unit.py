@@ -1,3 +1,6 @@
+#
+
+
 """ Unit tests
 """
 
@@ -18,7 +21,6 @@ class TestProjectVersion(unittest.TestCase):
             rst2sh5.__version__
         except AttributeError as version_exception:
             self.fail(version_exception)
-        return
 
 
 # EOF

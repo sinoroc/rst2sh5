@@ -51,12 +51,12 @@ REQUIREMENTS_EXTRAS = {
 
 ENTRY_POINTS = {
     'console_scripts': [
-        '{}={}.main:entry_point'.format(NAME, NAME),
+        '{name}={name}.main:entry_point'.format(name=NAME),
     ],
 }
 
 
-def _do_setup():
+def _setup():
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, 'README.rst')) as file_:
         readme = file_.read()
@@ -91,11 +91,10 @@ def _do_setup():
         package_dir=package_directories,
         packages=packages,
     )
-    return
 
 
 if __name__ == '__main__':
-    _do_setup()
+    _setup()
 
 
 # EOF

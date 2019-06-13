@@ -1,3 +1,6 @@
+#
+
+
 """ Main application module """
 
 
@@ -16,8 +19,6 @@ def entry_point():
         writer_name=meta.NAME,
         description=description,
     )
-
-    return
 
 
 # EOF
