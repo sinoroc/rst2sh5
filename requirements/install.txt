@@ -4,7 +4,7 @@
 beautifulsoup4==4.6.0
 docutils==0.14
 html5lib==1.0.1
-py==1.5.2
+py==1.10.0
 setuptools==33.1.1
 six==1.11.0
 webencodings==0.5.1
