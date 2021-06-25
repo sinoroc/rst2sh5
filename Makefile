@@ -5,12 +5,16 @@ source_dir := ./src
 tests_dir := ./test
 
 
-.DEFAULT_GOAL := develop
+.DEFAULT_GOAL := refresh
+
+
+.PHONY: refresh
+refresh: clean develop review package
 
 
 .PHONY: develop
 develop:
-	python3 setup.py develop
+	python3 -m pip install --editable .
 
 
 .PHONY: package
@@ -29,6 +33,11 @@ wheel:
 	python3 -m twine check dist/*.whl
 
 
+.PHONY: format
+format:
+	python3 -m yapf --in-place --parallel --recursive setup.py $(source_dir) $(tests_dir)
+
+
 .PHONY: check
 check:
 	python3 setup.py check
@@ -36,17 +45,27 @@ check:
 
 .PHONY: lint
 lint:
-	python3 -m pytest --pep8 --pylint -m 'pep8 or pylint'
+	python3 -m pytest --pycodestyle --pydocstyle --pylint --yapf -m 'pycodestyle or pydocstyle or pylint or yapf'
 
 
-.PHONY: pep8
-pep8:
-	python3 -m pytest --pep8 -m pep8
+.PHONY: pycodestyle
+pycodestyle:
+	python3 -m pytest --pycodestyle -m pycodestyle
+
+
+.PHONY: pydocstyle
+pydocstyle:
+	python3 -m pytest --pydocstyle -m pydocstyle
 
 
 .PHONY: pylint
 pylint:
 	python3 -m pytest --pylint -m pylint
+
+
+.PHONY: yapf
+yapf:
+	python3 -m pytest --yapf -m yapf
 
 
 .PHONY: test
@@ -60,7 +79,7 @@ pytest:
 
 .PHONY: review
 review: check
-	python3 -m pytest --pep8 --pylint
+	python3 -m pytest --pycodestyle --pydocstyle --pylint --yapf
 
 
 .PHONY: clean
@@ -83,7 +102,7 @@ clean:
 #
 
 # Disable default rules and suffixes (improve speed and avoid unexpected behaviour)
-MAKEFLAGS := --no-builtin-rules
+MAKEFLAGS := --no-builtin-rules --warn-undefined-variables
 .SUFFIXES:
 
 
