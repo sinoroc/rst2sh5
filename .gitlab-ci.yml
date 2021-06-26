@@ -1,23 +1,34 @@
 ---
 
 
-'.test_common':
-  script:
+'.review':
+  before_script:
     - 'python3 -m pip install tox'
+  script:
+    - 'export TOXENV="${CI_JOB_NAME##review}"'
     - 'python3 -m tox'
     - 'python3 -m tox -e package'
 
-'test py36':
-  extends: '.test_common'
+'review py36':
+  extends: '.review'
   image: 'python:3.6'
-  variables:
-    'TOXENV': 'py36'
 
-'test py37':
-  extends: '.test_common'
+'review py37':
+  extends: '.review'
   image: 'python:3.7'
-  variables:
-    'TOXENV': 'py37'
+
+'review py38':
+  extends: '.review'
+  image: 'python:3.8'
+
+'review py39':
+  extends: '.review'
+  image: 'python:3.9'
+
+'review py310':
+  allow_failure: true
+  extends: '.review'
+  image: 'python:3.10-rc'
 
 
-... EOF
+...  # EOF

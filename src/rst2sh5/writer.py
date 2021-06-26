@@ -1,8 +1,6 @@
 #
 
-
-""" Writer implementation """
-
+"""Writer implementation."""
 
 import os
 
@@ -12,13 +10,15 @@ import docutils.writers.html5_polyglot
 
 
 class Writer(docutils.writers.html5_polyglot.Writer):
-    """ Writer for docutils """
+    """Writer for docutils."""
 
     def __init__(self):
+        """Initialize."""
         super().__init__()
         self.translator_class = _Translator
 
     def translate(self):
+        """Translate."""
         super().translate()
         soup = bs4.BeautifulSoup(self.output, 'html5lib')
         self.output = soup.prettify()
@@ -29,8 +29,8 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
     embedded_stylesheet = '<style>\n\n%s\n</style>\n'
 
     def unimplemented_visit(
-            self,
-            node,
+        self,
+        node,
     ):  # pylint: disable=useless-super-delegation
         super().unimplemented_visit(node)
 
@@ -46,16 +46,20 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
 
     def visit_document(self, node):
         title = (
-            node.get('title', '') or
-            os.path.basename(node['source']) or
-            'docutils document without title'
+            node.get('title', '')  #
+            or os.path.basename(node['source'])  #
+            or 'docutils document without title'
         )
         self.head.append('<title>%s</title>\n' % self.encode(title))
 
     def depart_document(self, node):
-        self.head_prefix.extend([self.doctype,
-                                 self.head_prefix_template %
-                                 {'lang': self.settings.language_code}])
+        self.head_prefix.extend(
+            [
+                self.doctype, self.head_prefix_template % {
+                    'lang': self.settings.language_code,
+                }
+            ]
+        )
         self.html_prolog.append(self.doctype)
         self.meta.insert(0, self.content_type % self.settings.output_encoding)
         self.head.insert(0, self.content_type % self.settings.output_encoding)
@@ -70,11 +74,11 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
         self.body_suffix.insert(0, '</main>\n')
         self.fragment.extend(self.body)  # self.fragment is the "naked" body
         self.html_body.extend(
-            self.body_prefix[1:] +
-            self.body_pre_docinfo +
-            self.docinfo +
-            self.body +
-            self.body_suffix[:-1]
+            self.body_prefix[1:]  #
+            + self.body_pre_docinfo  #
+            + self.docinfo  #
+            + self.body  #
+            + self.body_suffix[:-1]
         )
         assert not self.context, 'len(context) = %s' % len(self.context)
 
@@ -108,8 +112,10 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
         atts = {}
         if 'refuri' in node:
             atts['href'] = node['refuri']
-            if (self.settings.cloak_email_addresses and
-                    atts['href'].startswith('mailto:')):
+            if (
+                self.settings.cloak_email_addresses
+                and atts['href'].startswith('mailto:')
+            ):
                 atts['href'] = self.cloak_mailto(atts['href'])
                 self.in_mailto = True
         else:
@@ -128,9 +134,7 @@ class _Translator(docutils.writers.html5_polyglot.HTMLTranslator):
 
     def visit_section(self, node):
         self.section_level += 1
-        self.body.append(
-            self.starttag(node, 'section'),
-        )
+        self.body.append(self.starttag(node, 'section'))
 
     def depart_section(self, node):
         self.section_level -= 1
